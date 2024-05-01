@@ -13,6 +13,7 @@
         <module>example-consumer</module>
         <module>example-provider</module>
         <module>hao-rpc-easy</module>
+        <module>hao-rpc-core</module>
     </modules>
 
     <properties>

@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>example-provider</artifactId>
+    <artifactId>hao-rpc-core</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -17,13 +17,6 @@
     </properties>
 
     <dependencies>
-
-        <dependency>
-            <groupId>com.hao</groupId>
-            <artifactId>hao-rpc-core</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-
         <dependency>
             <groupId>com.hao</groupId>
             <artifactId>example-common</artifactId>
@@ -31,10 +24,31 @@
         </dependency>
 
         <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.4.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-core</artifactId>
+            <version>4.5.1</version>
+        </dependency>
+
+        <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
             <version>5.8.18</version>
         </dependency>
+
+
     </dependencies>
 
 </project>
