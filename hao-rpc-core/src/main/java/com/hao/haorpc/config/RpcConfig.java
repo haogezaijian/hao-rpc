@@ -1,5 +1,6 @@
 package com.hao.haorpc.config;
 
+import com.hao.haorpc.serializer.SerializerKeys;
 import lombok.Data;
 
 /**
@@ -35,6 +36,11 @@ public class RpcConfig {
      * 模拟调用
      */
     private Boolean mock = false;
+
+    /**
+     * 序列化器
+     */
+    private String serializer = SerializerKeys.JDK;
 
     public Boolean isMock() {
         return this.mock;

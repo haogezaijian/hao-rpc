@@ -1,0 +1,2 @@
+c=com.hao.haprpc.serializer.JsonSerializer
+d=com.hao.haprpc.serializer.KryoSerializer
