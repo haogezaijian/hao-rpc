@@ -13,4 +13,16 @@ public interface UserService {
      * @date 2024/05/01
      */
     User getUser(User user);
+
+    /**
+     * （测试）
+     *
+     * @return short
+     * @author haoge
+     * @version 5.0.0
+     * @date 2024/05/02
+     */
+    default short getNumber() {
+        return 1;
+    }
 }

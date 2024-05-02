@@ -30,4 +30,13 @@ public class RpcConfig {
      * 服务端口号
      */
     private Integer serverPort = 8080;
+
+    /**
+     * 模拟调用
+     */
+    private Boolean mock = false;
+
+    public Boolean isMock() {
+        return this.mock;
+    }
 }
