@@ -1,8 +1,11 @@
 package com.hao.haorpc;
 
 
+import com.hao.haorpc.config.RegistryConfig;
 import com.hao.haorpc.config.RpcConfig;
 import com.hao.haorpc.constant.RpcConstant;
+import com.hao.haorpc.registry.Registry;
+import com.hao.haorpc.registry.RegistryFactory;
 import com.hao.haorpc.utils.ConfigUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,6 +32,11 @@ public class RpcApplication {
     public static void init(RpcConfig newRpcConfig) {
         rpcConfig = newRpcConfig;
         log.info("rpc init, config = {}", newRpcConfig.toString());
+        //注册中心初始化
+        RegistryConfig registryConfig = rpcConfig.getRegistryConfig();
+        Registry registry = RegistryFactory.getInstance(registryConfig.getRegistry());
+        registry.init(registryConfig);
+        log.info("registry init, config = {}", registryConfig);
     }
 
     /**

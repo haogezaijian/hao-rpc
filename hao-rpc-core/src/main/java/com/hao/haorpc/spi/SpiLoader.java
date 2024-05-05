@@ -29,12 +29,12 @@ import java.util.concurrent.ConcurrentHashMap;
      /**
       * 系统SPI目录
       */
-     private static final String RPC_SYSTEM_SPI_DIR = "META-INF/rpc/system/";
+     private static final String RPC_SYSTEM_SPI_DIR = "META-INFO/rpc/system/";
 
      /**
       * 用户自定义SPI目录
       */
-     private static final String RPC_CUSTOM_SPI_DIR = "META-INF/rpc/custom/";
+     private static final String RPC_CUSTOM_SPI_DIR = "META-INFO/rpc/custom/";
 
      /**
       * 扫描路径
@@ -110,7 +110,8 @@ import java.util.concurrent.ConcurrentHashMap;
          //扫描路径，用户自定义的SPI优先级高于系统SPI
          Map<String, Class<?>> keyClassMap = new HashMap<>();
          for (String scanDir : SCAN_DIRS) {
-             List<URL> resources = ResourceUtil.getResources(scanDir + loadClass.getName());
+             String path = scanDir + loadClass.getName();
+             List<URL> resources = ResourceUtil.getResources(path);
              //读取每个资源文件
              for (URL resource : resources) {
                  try {
