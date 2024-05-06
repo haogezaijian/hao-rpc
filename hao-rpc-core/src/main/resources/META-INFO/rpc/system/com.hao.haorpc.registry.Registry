@@ -1,1 +1,2 @@
 etcd=com.hao.haorpc.registry.EtcdRegistry
+zookeeper=com.hao.haorpc.registry.ZookeeperRegistry
