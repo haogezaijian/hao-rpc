@@ -72,4 +72,14 @@ public interface Registry {
      * @date 2024/05/06
      */
     void heartBeat();
+
+    /**
+     * 监听（消费端）
+     *
+     * @param serviceNodeKey service node key
+     * @author haoge
+     * @version 5.0.0
+     * @date 2024/05/06
+     */
+    void watch(String serviceNodeKey);
 }
