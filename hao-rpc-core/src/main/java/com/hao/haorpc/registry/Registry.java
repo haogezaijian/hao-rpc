@@ -63,4 +63,13 @@ public interface Registry {
      * @date 2024/05/05
      */
     void destroy();
+
+    /**
+     * 心跳检测
+     *
+     * @author haoge
+     * @version 5.0.0
+     * @date 2024/05/06
+     */
+    void heartBeat();
 }
