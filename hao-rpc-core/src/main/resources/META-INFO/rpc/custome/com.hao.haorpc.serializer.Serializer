@@ -1,2 +1,2 @@
-c=com.hao.haprpc.serializer.JsonSerializer
-d=com.hao.haprpc.serializer.KryoSerializer
+json=com.hao.haorpc.serializer.JsonSerializer
+kryo=com.hao.haorpc.serializer.KryoSerializer

@@ -1,2 +1,2 @@
-a=com.hao.haprpc.serializer.JdkSerializer
-b=com.hao.haprpc.serializer.HessianSerializer
+jdk=com.hao.haorpc.serializer.JdkSerializer
+hessian=com.hao.haorpc.serializer.HessianSerializer

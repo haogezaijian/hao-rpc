@@ -1,4 +1,4 @@
-jdk=com.hao.haprpc.serializer.JdkSerializer
-hessian=com.hao.haprpc.serializer.HessianSerializer
-json=com.hao.haprpc.serializer.JsonSerializer
-kryo=com.hao.haprpc.serializer.KryoSerializer
+jdk=com.hao.haorpc.serializer.JdkSerializer
+hessian=com.hao.haorpc.serializer.HessianSerializer
+json=com.hao.haorpc.serializer.JsonSerializer
+kryo=com.hao.haorpc.serializer.KryoSerializer
