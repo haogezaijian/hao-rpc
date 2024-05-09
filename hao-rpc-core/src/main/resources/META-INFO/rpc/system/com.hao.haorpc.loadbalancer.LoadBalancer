@@ -1,0 +1,3 @@
+roundRobin=com.hao.haorpc.loadbalancer.RoundRobinLoadBalancer
+random=com.hao.haorpc.loadbalancer.RandomLoadBalancer
+consistentHash=com.hao.haorpc.loadbalancer.ConsistentHashLoadBalancer

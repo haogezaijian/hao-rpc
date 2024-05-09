@@ -7,6 +7,8 @@ import cn.hutool.http.HttpResponse;
 import com.hao.haorpc.RpcApplication;
 import com.hao.haorpc.config.RpcConfig;
 import com.hao.haorpc.constant.RpcConstant;
+import com.hao.haorpc.loadbalancer.LoadBalancer;
+import com.hao.haorpc.loadbalancer.LoadBalancerFactory;
 import com.hao.haorpc.model.RpcRequest;
 import com.hao.haorpc.model.RpcResponse;
 import com.hao.haorpc.model.ServiceMetaInfo;
@@ -24,7 +26,9 @@ import io.vertx.core.net.NetSocket;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -61,14 +65,17 @@ public class ServiceProxy implements InvocationHandler {
             if (CollUtil.isEmpty(serviceMetaInfoList)) {
                 throw new RuntimeException("暂无服务地址");
             }
-            //获取第一个
-            ServiceMetaInfo selectedServiceMetaInfo = serviceMetaInfoList.get(0);
+            //负载均衡
+            LoadBalancer loadBalancer = LoadBalancerFactory.getInstance(rpcConfig.getLoadBalancer());
+            Map<String, Object> requestParams = new HashMap<>();
+            requestParams.put("methodName", rpcRequest.getMethodName());
+            ServiceMetaInfo selectServiceMetaInfo = loadBalancer.select(requestParams, serviceMetaInfoList);
 
             //发送TCP请求
             Vertx vertx = Vertx.vertx();
             NetClient netClient = vertx.createNetClient();
             CompletableFuture<RpcResponse> responseFuture = new CompletableFuture<>();
-            netClient.connect(selectedServiceMetaInfo.getServicePort(), selectedServiceMetaInfo.getServiceHost(), result -> {
+            netClient.connect(selectServiceMetaInfo.getServicePort(), selectServiceMetaInfo.getServiceHost(), result -> {
                 if (result.succeeded()) {
                     System.out.println("Connected to TCP server");
                     NetSocket netSocket = result.result();

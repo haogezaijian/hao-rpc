@@ -1,5 +1,6 @@
 package com.hao.haorpc.config;
 
+import com.hao.haorpc.loadbalancer.LoadBalancerKeys;
 import com.hao.haorpc.serializer.SerializerKeys;
 import lombok.Data;
 
@@ -46,6 +47,11 @@ public class RpcConfig {
      * 注册中心配置类
      */
     private RegistryConfig registryConfig = new RegistryConfig();
+
+    /**
+     * 负载均衡器
+     */
+    private String loadBalancer = LoadBalancerKeys.ROUND_ROBIN;
 
     public Boolean isMock() {
         return this.mock;
