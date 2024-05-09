@@ -7,6 +7,8 @@ import cn.hutool.http.HttpResponse;
 import com.hao.haorpc.RpcApplication;
 import com.hao.haorpc.config.RpcConfig;
 import com.hao.haorpc.constant.RpcConstant;
+import com.hao.haorpc.fault.retry.RetryStrategy;
+import com.hao.haorpc.fault.retry.RetryStrategyFactory;
 import com.hao.haorpc.loadbalancer.LoadBalancer;
 import com.hao.haorpc.loadbalancer.LoadBalancerFactory;
 import com.hao.haorpc.model.RpcRequest;
@@ -18,6 +20,7 @@ import com.hao.haorpc.registry.RegistryFactory;
 import com.hao.haorpc.serializer.JdkSerializer;
 import com.hao.haorpc.serializer.Serializer;
 import com.hao.haorpc.serializer.SerializerFactory;
+import com.hao.haorpc.server.tcp.VertxTcpClient;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetClient;
@@ -72,54 +75,14 @@ public class ServiceProxy implements InvocationHandler {
             ServiceMetaInfo selectServiceMetaInfo = loadBalancer.select(requestParams, serviceMetaInfoList);
 
             //发送TCP请求
-            Vertx vertx = Vertx.vertx();
-            NetClient netClient = vertx.createNetClient();
-            CompletableFuture<RpcResponse> responseFuture = new CompletableFuture<>();
-            netClient.connect(selectServiceMetaInfo.getServicePort(), selectServiceMetaInfo.getServiceHost(), result -> {
-                if (result.succeeded()) {
-                    System.out.println("Connected to TCP server");
-                    NetSocket netSocket = result.result();
-                    //发送数据
-                    //构造消息
-                    ProtocolMessage<RpcRequest> protocolMessage = new ProtocolMessage<>();
-                    ProtocolMessage.Header header = new ProtocolMessage.Header();
-                    header.setMagic(ProtocolConstant.PROTOCOL_MAGIC);
-                    header.setVersion(ProtocolConstant.PROTOCOL_VERSION);
-                    header.setSerializer((byte) ProtocolMessageSerializerEnum.getEnumByValue(RpcApplication.getRpcConfig().getSerializer()).getKey());
-                    header.setType((byte) ProtocolMessageTypeEnum.REQUEST.getKey());
-                    header.setRequestId(IdUtil.getSnowflakeNextId());
-                    protocolMessage.setHeader(header);
-                    protocolMessage.setBody(rpcRequest);
-                    //编码
-                    try {
-                        Buffer encode = ProtocolMessageEncoder.encode(protocolMessage);
-                        netSocket.write(encode);
-                    } catch (IOException e) {
-                        throw new RuntimeException("协议消息编码错误");
-                    }
-
-                    //接收响应
-                    netSocket.handler(buffer -> {
-                        try {
-                            ProtocolMessage<RpcResponse> rpcResponseProtocolMessage =
-                                    (ProtocolMessage<RpcResponse>) ProtocolMessageDecoder.decode(buffer);
-                            responseFuture.complete(rpcResponseProtocolMessage.getBody());
-                        } catch (IOException e) {
-                            throw new RuntimeException("协议消息解码错误");
-                        }
-                    });
-                } else {
-                    System.out.println("Failed to connect to TCP server");
-                }
-            });
-
-            RpcResponse response = responseFuture.get();
-            //关闭连接
-            netClient.close();
-            return response.getData();
+            //重试机制
+            RetryStrategy retryStrategy = RetryStrategyFactory.getInstance(rpcConfig.getRetryStrategy());
+            RpcResponse rpcResponse = retryStrategy.doRetry(() ->
+                    VertxTcpClient.doRequest(rpcRequest, selectServiceMetaInfo)
+            );
+            return rpcResponse.getData();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("调用失败");
         }
-        return null;
     }
 }

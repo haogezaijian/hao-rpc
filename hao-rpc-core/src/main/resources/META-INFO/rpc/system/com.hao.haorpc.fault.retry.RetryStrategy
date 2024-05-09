@@ -1,0 +1,2 @@
+no=com.hao.haorpc.fault.retry.NoRetryStrategy
+fixedInterval=com.hao.haorpc.fault.retry.FixedIntervalRetryStrategy
