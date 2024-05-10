@@ -9,6 +9,8 @@ import com.hao.haorpc.config.RpcConfig;
 import com.hao.haorpc.constant.RpcConstant;
 import com.hao.haorpc.fault.retry.RetryStrategy;
 import com.hao.haorpc.fault.retry.RetryStrategyFactory;
+import com.hao.haorpc.fault.tolerant.TolerantStrategy;
+import com.hao.haorpc.fault.tolerant.TolerantStrategyFactory;
 import com.hao.haorpc.loadbalancer.LoadBalancer;
 import com.hao.haorpc.loadbalancer.LoadBalancerFactory;
 import com.hao.haorpc.model.RpcRequest;
@@ -45,7 +47,6 @@ public class ServiceProxy implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         //指定序列化器
-        final Serializer serializer = SerializerFactory.getInstance(RpcApplication.getRpcConfig().getSerializer());
         String serviceName = method.getDeclaringClass().getName();
         //构造请求
         RpcRequest rpcRequest = RpcRequest.builder()
@@ -54,10 +55,6 @@ public class ServiceProxy implements InvocationHandler {
                 .parameterTypes(method.getParameterTypes())
                 .args(args)
                 .build();
-        try {
-            //序列化
-            byte[] bodyBytes = serializer.serialize(rpcRequest);
-
             //从注册中心获取服务提供者请求地址
             RpcConfig rpcConfig = RpcApplication.getRpcConfig();
             Registry registry = RegistryFactory.getInstance(rpcConfig.getRegistryConfig().getRegistry());
@@ -76,13 +73,19 @@ public class ServiceProxy implements InvocationHandler {
 
             //发送TCP请求
             //重试机制
+        RpcResponse rpcResponse;
+        try {
             RetryStrategy retryStrategy = RetryStrategyFactory.getInstance(rpcConfig.getRetryStrategy());
-            RpcResponse rpcResponse = retryStrategy.doRetry(() ->
+            rpcResponse = retryStrategy.doRetry(() ->
                     VertxTcpClient.doRequest(rpcRequest, selectServiceMetaInfo)
             );
-            return rpcResponse.getData();
-        } catch (IOException e) {
-            throw new RuntimeException("调用失败");
+        } catch (Exception e) {
+            //容错机制
+            TolerantStrategy tolerantStrategy = TolerantStrategyFactory.getInstance(rpcConfig.getTolerantStrategy());
+            rpcResponse = tolerantStrategy.doTolerant(null,e);
         }
+
+            return rpcResponse.getData();
+
     }
 }
